@@ -102,7 +102,7 @@ namespace Tests
             var msg = new String('f', 65508);
             listenThread.Start();
             statsd.Add<Statsd.Counting, int>(msg, 1);
-            statsd.Send();
+            statsd.SendAll();
             // It shouldn't be split or sent, and no exceptions should be raised.
             AssertWasReceived(null);
         }
@@ -114,7 +114,7 @@ namespace Tests
             listenThread.Start(3); // Listen for 3 messages
             statsd.Add<Statsd.Counting, int>(msg, 1);
             statsd.Add<Statsd.Gauge, int>(msg, 2);
-            statsd.Send();
+            statsd.SendAll();
             // These two metrics should be split as their combined lengths exceed the maximum packet size
             AssertWasReceived(String.Format("{0}:1|c", msg), 0);
             AssertWasReceived(String.Format("{0}:2|g", msg), 1);
@@ -130,7 +130,7 @@ namespace Tests
             statsd.Add<Statsd.Counting, int>("counter", 1);
             statsd.Add<Statsd.Counting, int>(msg, 2);
             statsd.Add<Statsd.Counting, int>(msg, 3);
-            statsd.Send();
+            statsd.SendAll();
             AssertWasReceived(String.Format("counter:1|c\n{0}:2|c", msg), 0);
             AssertWasReceived(String.Format("{0}:3|c", msg), 1);
             AssertWasReceived(null, 2);
@@ -146,7 +146,7 @@ namespace Tests
             listenThread.Start(2);
             statsd.Add<Statsd.Counting, int>(msg, 1);
             statsd.Add<Statsd.Gauge, int>(msg, 2);
-            statsd.Send();
+            statsd.SendAll();
             // Since our packet size limit is now 10, this (short) message should still be split
             AssertWasReceived(String.Format("{0}:1|c", msg), 0);
             AssertWasReceived(String.Format("{0}:2|g", msg), 1);

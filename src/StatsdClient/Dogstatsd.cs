@@ -4,7 +4,7 @@ namespace StatsdClient
 {
     public static class DogStatsd
     {
-        private static Statsd _statsD;
+        private static IStatsd _statsD;
         private static string _prefix;
 
         public static void Configure(StatsdConfig config)

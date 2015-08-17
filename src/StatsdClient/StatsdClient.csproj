@@ -39,6 +39,7 @@
     <Compile Include="ICommandType.cs" />
     <Compile Include="IRandomGenerator.cs" />
     <Compile Include="IStatsd.cs" />
+    <Compile Include="IStatsdBatch.cs" />
     <Compile Include="IStatsdUDP.cs" />
     <Compile Include="IStopwatch.cs" />
     <Compile Include="IStopWatchFactory.cs" />

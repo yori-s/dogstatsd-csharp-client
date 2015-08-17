@@ -147,12 +147,13 @@ using (udp)
   s.Add<Statsd.Counting,int>("stat-name", 1);
   s.Add<Statsd.Timing,int>("stat-name", 5, sampleRate: 1/10);
   s.Add("event title", "content", priority: "low");
-  s.Send(); // message will contain counter and will contain timer 10% of the time
-  // All previous commands will be flushed after any Send
-  // Any Adds will be ignored if using a Send directly
+  s.SendAll(); // message will contain counter and will contain timer 10% of the time
+  // All previous commands will be flushed after any SendAll
+  
+  // Add/SendAll doesn't interact with Send
   s.Add<Statsd.Counting,int>("stat-name", 1);
   s.Send<Statsd.Timing,double>("stat-name", 4.4); // message will only contain Timer
-  s.Send(); // the counter will not be sent by the command
+  s.SendAll(); // sends the counter
 }
 
 // By default, Statsd will split messages containing multiple metrics/events into

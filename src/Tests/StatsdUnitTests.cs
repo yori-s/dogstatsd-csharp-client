@@ -470,7 +470,7 @@ namespace Tests
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
             s.Add<Statsd.Counting,int>("counter", 1, 0.1);
             s.Add<Statsd.Timing,int>("timer", 1);
-            s.Send();
+            s.SendAll();
 
             udp.AssertWasCalled(x => x.Send("counter:1|c|@0.1\ntimer:1|ms"));
         }
@@ -482,13 +482,13 @@ namespace Tests
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
             s.Add<Statsd.Counting,int>("counter", 1, 0.1);
             s.Add<Statsd.Timing,int>("timer", 1);
-            s.Send();
+            s.SendAll();
 
             Assert.That(s.Commands.Count, Is.EqualTo(0));
         }
 
         [Test]
-        public void add_one_counter_and_send_one_gauge_sends_only_sends_the_last_and_clears_queue()
+        public void add_one_counter_and_send_one_gauge_sends_only_the_last_and_preserves_queue()
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
             s.Add<Statsd.Counting,int>("counter", 1);
@@ -496,9 +496,8 @@ namespace Tests
 
             udp.AssertWasCalled(x => x.Send("timer:1|ms"));
 
-            s.Send();
-
             udp.AssertWasNotCalled(x => x.Send("counter:1|c"));
+            Assert.That(s.Commands, Is.EqualTo(new[] {"counter:1|c"}));
         }
 
         [Test]
@@ -606,7 +605,7 @@ namespace Tests
 
             s.Add<Statsd.Counting,int>("counter", 1, sampleRate: 0.1);
             s.Add<Statsd.Timing,int>("timer", 1);
-            s.Send();
+            s.SendAll();
 
             udp.AssertWasCalled(x => x.Send("another.prefix.counter:1|c|@0.1\nanother.prefix.timer:1|ms"));
         }

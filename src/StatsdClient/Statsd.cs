@@ -5,7 +5,7 @@ using System.Globalization;
 
 namespace StatsdClient
 {
-    public class Statsd : IStatsd
+    public class Statsd : IStatsd, IStatsdBatch
     {
         private IStopWatchFactory StopwatchFactory { get; set; }
         private IStatsdUDP Udp { get; set; }
@@ -150,21 +150,23 @@ namespace StatsdClient
 
         public void Send(string command)
         {
-            Commands = new List<string> { command };
-            Send();
-        }
-
-        public void Send()
-        {
             try
             {
-                Udp.Send(string.Join("\n", Commands.ToArray()));
-                Commands = new List<string>();
+                Udp.Send(command);
             }
             catch (Exception e)
             {
                 Debug.WriteLine(e.Message);
             }
+        }
+
+        public void SendAll()
+        {
+            int count = Commands.Count;
+            if (count < 1) return;
+
+            Send(1 == count ? Commands[0] : string.Join("\n", Commands.ToArray()));
+            Commands = new List<string>();
         }
 
         public void Add(Action actionToTime, string statName, double sampleRate = 1.0, string[] tags = null)
