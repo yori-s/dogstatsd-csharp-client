@@ -15,10 +15,16 @@ namespace StatsdClient
             if (string.IsNullOrEmpty(config.StatsdServerName))
                 throw new ArgumentNullException("config.StatsdServername");
 
-            _prefix = config.Prefix;
-            _statsD = string.IsNullOrEmpty(config.StatsdServerName)
-                      ? null
-                      : new Statsd(new StatsdUDP(config.StatsdServerName, config.StatsdPort, config.StatsdMaxUDPPacketSize));
+            Configure(new Statsd(new StatsdUDP(config.StatsdServerName, config.StatsdPort, config.StatsdMaxUDPPacketSize)), config.Prefix);
+        }
+
+        /// <summary>configure a custom IStatsd implementation</summary>
+        public static void Configure(IStatsd statsD, string prefix = null)
+        {
+            if (statsD == null)
+                throw new ArgumentNullException("statsD");
+            _statsD = statsD;
+            _prefix = prefix ?? "";
         }
 
         public static void Event(string title, string text, string alertType = null, string aggregationKey = null, string sourceType = null, int? dateHappened = null, string priority = null, string hostname = null, string[] tags = null)
